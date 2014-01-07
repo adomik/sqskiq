@@ -17,6 +17,7 @@
 /tmp
 .rvmrc
 .ruby-version
+.ruby-gemset
 tags
 Gemfile.lock
 *.swp
