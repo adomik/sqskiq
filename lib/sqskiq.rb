@@ -11,7 +11,7 @@ module Sqskiq
   # Configures and starts actor system
   def self.bootstrap(worker_config, worker_class)
     config = valid_config_from(worker_config)
-    credentials = [ @aws_access_key_id, @aws_secret_access_key, config[:queue_name] ]
+    credentials = [ config[:queue_name] ]
     
     Celluloid::Actor[:manager]   = @manager   = Manager.new(config[:empty_queue_throttle])
     Celluloid::Actor[:fetcher]   = @fetcher   = Fetcher.pool(:size => config[:num_fetchers], :args => credentials)
@@ -65,13 +65,4 @@ module Sqskiq
   def self.configure
     yield self
   end
-
-  def self.aws_access_key_id=(value)
-    @aws_access_key_id = value
-  end
-
-  def self.aws_secret_access_key=(value)
-    @aws_secret_access_key = value
-  end
-
 end
