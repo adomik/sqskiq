@@ -10,7 +10,7 @@ module Sqskiq
     end
 
     def fetch_sqs_messages
-      @queue.receive_message(:limit => 10, :attributes => [:receive_count])
+      @queue.receive_message(:limit => @receive_message_limit, :attributes => [:receive_count])
     end
 
     def delete_sqs_messages(messages)

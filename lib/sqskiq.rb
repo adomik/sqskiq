@@ -11,12 +11,12 @@ module Sqskiq
   # Configures and starts actor system
   def self.bootstrap(worker_config, worker_class)
     config = valid_config_from(worker_config)
-    credentials = [ config[:queue_name] ]
+    sqs_config = [config[:queue_name]]
     
     Celluloid::Actor[:manager]   = @manager   = Manager.new(config[:empty_queue_throttle])
-    Celluloid::Actor[:fetcher]   = @fetcher   = Fetcher.pool(:size => config[:num_fetchers], :args => credentials)
-    Celluloid::Actor[:deleter]   = @deleter   = Deleter.pool(:size => config[:num_deleters], :args => credentials)
-    Celluloid::Actor[:processor] = @processor = Processor.pool(:size => config[:num_workers], :args => worker_class)
+    Celluloid::Actor[:fetcher]   = @fetcher   = Fetcher.pool(:size => config[:num_fetchers], :args => [config[:queue_name], config[:receive_message_limit]])
+    Celluloid::Actor[:deleter]   = @deleter   = Deleter.pool(:size => config[:num_deleters], :args => sqs_config)
+    Celluloid::Actor[:processor] = @processor = Processor.pool(:size => config[:num_workers], :args => sqs_config)
     Celluloid::Actor[:batcher]   = @batcher   = BatchProcessor.pool(:size => config[:num_batches])
     
     configure_signal_listeners
@@ -58,7 +58,8 @@ module Sqskiq
       num_batches: num_batches, 
       num_deleters: num_deleters,
       queue_name: worker_config[:queue_name],
-      empty_queue_throttle: worker_config[:empty_queue_throttle] || 0
+      empty_queue_throttle: worker_config[:empty_queue_throttle] || 0,
+      receive_message_limit: worker_config[:receive_message_limit] || 10
     }
   end
   
