@@ -7,9 +7,8 @@ module Sqskiq
     include Celluloid
     include Sqskiq::AWS
 
-    def initialize(queue_name, receive_message_limit = 10)
-      init_queue(queue_name)
-      @receive_message_limit = receive_message_limit
+    def initialize(queue_name, receive_message_limit)
+      init_queue(queue_name,receive_message_limit)
       @manager = Celluloid::Actor[:manager]
     end
 

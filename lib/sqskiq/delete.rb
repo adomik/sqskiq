@@ -7,8 +7,8 @@ module Sqskiq
     include Celluloid
     include Sqskiq::AWS
 
-    def initialize(queue_name)
-      init_queue(queue_name)
+    def initialize(queue_name, receive_message_limit)
+      init_queue(queue_name,receive_message_limit)
     end
 
     def delete(messages)

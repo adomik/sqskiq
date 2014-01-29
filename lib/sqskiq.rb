@@ -11,12 +11,12 @@ module Sqskiq
   # Configures and starts actor system
   def self.bootstrap(worker_config, worker_class)
     config = valid_config_from(worker_config)
-    sqs_config = [config[:queue_name]]
+    credentials = [ config[:queue_name], config[:receive_message_limit] ]
     
     Celluloid::Actor[:manager]   = @manager   = Manager.new(config[:empty_queue_throttle])
-    Celluloid::Actor[:fetcher]   = @fetcher   = Fetcher.pool(:size => config[:num_fetchers], :args => [config[:queue_name], config[:receive_message_limit]])
-    Celluloid::Actor[:deleter]   = @deleter   = Deleter.pool(:size => config[:num_deleters], :args => sqs_config)
-    Celluloid::Actor[:processor] = @processor = Processor.pool(:size => config[:num_workers], :args => sqs_config)
+    Celluloid::Actor[:fetcher]   = @fetcher   = Fetcher.pool(:size => config[:num_fetchers], :args => credentials)
+    Celluloid::Actor[:deleter]   = @deleter   = Deleter.pool(:size => config[:num_deleters], :args => credentials)
+    Celluloid::Actor[:processor] = @processor = Processor.pool(:size => config[:num_workers], :args => worker_class)
     Celluloid::Actor[:batcher]   = @batcher   = BatchProcessor.pool(:size => config[:num_batches])
     
     configure_signal_listeners
